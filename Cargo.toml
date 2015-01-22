@@ -1,0 +1,8 @@
+[package]
+
+name = "todo"
+version = "0.0.1"
+authors = ["Trevyn Loris <trevyn.loris@gmail.com>"]
+
+[dependencies]
+rusqlite = "0.0.7"
