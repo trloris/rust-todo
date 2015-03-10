@@ -33,11 +33,19 @@ fn list(conn: SqliteConnection) {
 	display(todos);
 }
 
+fn delete(conn: SqliteConnection) {
+	println!("Which item would you like to delete?");
+	let id = io::stdin().read_line().ok().expect("Failed to read line");
+	conn.execute("UPDATE todo SET complete = 'true' WHERE id = $1",
+				 &[&id.trim()]);
+
+	println!("Todo item {} deleted", id);
+}
 
 fn display(todos: Vec<Todo>) {
 	let mut index = 0;
 	for todo in todos.iter() {
-		println!("{}. {}", index + 1, todo.title);
+		println!("{}. {}", todo.id, todo.title);
 		index += 1;
 		
 	}
@@ -66,6 +74,7 @@ fn main() {
 		_ => match args[1].as_slice() {
 			"add"  => insert(conn),
 			"list" => list(conn),
+			"delete" => delete(conn),
 			_      => println!("Invalid arguments")
 		}
 	}
