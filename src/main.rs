@@ -39,10 +39,12 @@ fn display(todos: Vec<Todo>) {
 	for todo in todos.iter() {
 		println!("{}. {}", index + 1, todo.title);
 		index += 1;
+		
 	}
 }
 
 fn main() {
+	
 	let home_path = os::homedir();
 	let stringy = "hoi";
 	let mut db_path: String;
@@ -53,7 +55,6 @@ fn main() {
 		},
 		None => db_path = "file:todo.db".to_string()
 	}
-
 	let conn = SqliteConnection::open(db_path.as_slice()).unwrap();
 
 	conn.execute("CREATE TABLE IF NOT EXISTS todo (
