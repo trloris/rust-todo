@@ -44,7 +44,7 @@ fn display(todos: Vec<Todo>) {
 }
 
 fn main() {
-	
+
 	let home_path = os::homedir();
 	let stringy = "hoi";
 	let mut db_path: String;
@@ -67,9 +67,12 @@ fn main() {
 	// 	"hi" => println!("test"),
 	// 	_ => println!("a")
 	// }
-	match args[1].as_slice() {
-		"add" => insert(conn),
-		"list" => list(conn),
-		_ => println!("Invalid arguments")
+	match args.len() {
+		1 => println!("Please provide an argument."),
+		_ => match args[1].as_slice() {
+			"add"  => insert(conn),
+			"list" => list(conn),
+			_      => println!("Invalid arguments")
+		}
 	}
 }
