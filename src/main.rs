@@ -17,7 +17,7 @@ fn insert(conn: SqliteConnection) {
 	let description = io::stdin().read_line().ok().expect("Failed to read line");
 	conn.execute("INSERT INTO todo (title, description, complete)
 		          VALUES ($1, $2, $3)",
-		          &[&title, &description, &"false"]).unwrap();
+		          &[&title.trim(), &description.trim(), &"false"]).unwrap();
 }
 
 fn list(conn: SqliteConnection) {
