@@ -44,9 +44,7 @@ fn display(todos: Vec<Todo>) {
 }
 
 fn main() {
-
 	let home_path = os::homedir();
-	let stringy = "hoi";
 	let mut db_path: String;
 	match home_path {
 		Some(path) => match path.as_str() {
@@ -63,10 +61,6 @@ fn main() {
 				 description    TEXT NOT NULL,
 				 complete       TEXT NOT NULL)", &[]).unwrap();
 	let args = os::args();
-	// match &os::args()[1] {
-	// 	"hi" => println!("test"),
-	// 	_ => println!("a")
-	// }
 	match args.len() {
 		1 => println!("Please provide an argument."),
 		_ => match args[1].as_slice() {
