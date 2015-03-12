@@ -33,7 +33,7 @@ fn list(conn: &SqliteConnection) -> Vec<Todo>{
 	todos
 }
 
-fn delete(conn: &SqliteConnection, todos: &Vec<Todo>) {
+fn delete(conn: &SqliteConnection, todos: &mut Vec<Todo>) {
 	println!("Which item would you like to delete?");
 	let index = io::stdin().read_line().ok().expect("Failed to read line");
 	let index_num: Option<usize> = index.trim().parse();
@@ -44,10 +44,11 @@ fn delete(conn: &SqliteConnection, todos: &Vec<Todo>) {
 			return;
 		}
 	};
+	
 	let id_string = todos[id-1].id.to_string();
 	conn.execute("UPDATE todo SET complete = 'true' WHERE id = $1",
 				 &[&id_string.trim()]);
-
+	todos.remove(id-1);
 	println!("Todo item {} deleted", id);
 }
 
@@ -74,11 +75,10 @@ fn detail(conn: &SqliteConnection, todos: &Vec<Todo>) {
 
 fn menu(conn: &SqliteConnection) {
 	let mut todos = list(conn);
-	display(&todos);
-
 	let mut exit = false;
 
 	while !exit {
+		display(&todos);
 		println!("What is your command?");
 		let mut command = io::stdin().read_line().ok().expect("Failed to read line");
 		// command = command.trim();
@@ -87,7 +87,7 @@ fn menu(conn: &SqliteConnection) {
 			"quit" => exit = true,
 			"add" => insert(conn),
 			"detail" => detail(conn, &todos),
-			"delete" => delete(conn, &todos),
+			"delete" => delete(conn, &mut todos),
 			_ => exit = false
 		}
 	}
