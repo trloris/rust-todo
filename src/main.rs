@@ -4,20 +4,23 @@ use std::io;
 use rusqlite::SqliteConnection;
 
 struct Todo {
-	id: i32,
+	id: i64,
 	title: String,
 	description: String,
 	complete: String
 }
 
-fn insert(conn: &SqliteConnection) {
+fn insert(conn: &SqliteConnection, todos: &mut Vec<Todo>) {
 	println!("Name of item?");
 	let title = io::stdin().read_line().ok().expect("Failed to read line");
 	println!("Description?");
 	let description = io::stdin().read_line().ok().expect("Failed to read line");
-	conn.execute("INSERT INTO todo (title, description, complete)
+	let mut strmt = conn.execute("INSERT INTO todo (title, description, complete)
 		          VALUES ($1, $2, $3)",
 		          &[&title.trim(), &description.trim(), &"false"]).unwrap();
+
+	todos.push(Todo{id: conn.last_insert_rowid(), title: title.trim().to_string(),
+					description: description.trim().to_string(), complete: "False".to_string() });
 }
 
 fn list(conn: &SqliteConnection) -> Vec<Todo>{
@@ -85,7 +88,7 @@ fn menu(conn: &SqliteConnection) {
 		let commands: Vec<&str> = command.split(' ').collect();
 		match commands[0].trim() {
 			"quit" => exit = true,
-			"add" => insert(conn),
+			"add" => insert(conn, &mut todos),
 			"detail" => detail(conn, &todos),
 			"delete" => delete(conn, &mut todos),
 			_ => exit = false
