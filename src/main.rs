@@ -54,9 +54,9 @@ fn display(todos: &Vec<Todo>) {
 fn detail(conn: &SqliteConnection, todos: &Vec<Todo>) {
 	println!("Detail of which item?");
 	let id = io::stdin().read_line().ok().expect("Failed to read line");
-	let id_num: Option<usize> = id.parse();
+	let id_num: Option<usize> = id.trim().parse();
 	match id_num {
-		Some(n) => println!("{}", todos[n].description),
+		Some(n) => println!("{}", todos[n-1].description),
 		None => {
 			println!("Invalid entry")
 		}
