@@ -42,8 +42,8 @@ fn delete(conn: &SqliteConnection) {
 	println!("Todo item {} deleted", id);
 }
 
-fn display(todos: Vec<Todo>) {
-	let mut index = 0;
+fn display(todos: &Vec<Todo>) {
+	let mut index = 1;
 	for todo in todos.iter() {
 		println!("{}. {}", index, todo.title);
 		index += 1;
@@ -51,13 +51,13 @@ fn display(todos: Vec<Todo>) {
 	}
 }
 
-fn detail(conn: &SqliteConnection, todos: Vec<Todo>) {
+fn detail(conn: &SqliteConnection, todos: &Vec<Todo>) {
 	println!("Detail of which item?");
 	let id = io::stdin().read_line().ok().expect("Failed to read line");
-	let id_num: Option<isize> = id.parse();
+	let id_num: Option<usize> = id.parse();
 	match id_num {
-		Some(n) => println!("{}", todos[n]),
-		Err(_) => {
+		Some(n) => println!("{}", todos[n].description),
+		None => {
 			println!("Invalid entry")
 		}
 	}
@@ -65,7 +65,7 @@ fn detail(conn: &SqliteConnection, todos: Vec<Todo>) {
 
 fn menu(conn: &SqliteConnection) {
 	let mut todos = list(conn);
-	display(todos);
+	display(&todos);
 
 	let mut exit = false;
 
@@ -77,7 +77,7 @@ fn menu(conn: &SqliteConnection) {
 		match commands[0].trim() {
 			"quit" => exit = true,
 			"add" => insert(conn),
-			"detail" => detail(conn, todos),
+			"detail" => detail(conn, &todos),
 			_ => exit = false
 		}
 	}
