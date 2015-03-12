@@ -10,7 +10,7 @@ struct Todo {
 	complete: String
 }
 
-fn insert(conn: SqliteConnection) {
+fn insert(conn: &SqliteConnection) {
 	println!("Name of item?");
 	let title = io::stdin().read_line().ok().expect("Failed to read line");
 	println!("Description?");
@@ -20,7 +20,7 @@ fn insert(conn: SqliteConnection) {
 		          &[&title.trim(), &description.trim(), &"false"]).unwrap();
 }
 
-fn list(conn: SqliteConnection) {
+fn list(conn: &SqliteConnection) -> Vec<Todo>{
 	let mut todos = Vec::new();
 	let mut stmt = conn.prepare("SELECT id, title, description, complete FROM todo WHERE complete = 'false'").unwrap();
 	for row in stmt.query(&[]).unwrap().map(|row| row.unwrap()) {
@@ -30,10 +30,10 @@ fn list(conn: SqliteConnection) {
 						  complete: row.get(3)});
 	}
 
-	display(todos);
+	todos
 }
 
-fn delete(conn: SqliteConnection) {
+fn delete(conn: &SqliteConnection) {
 	println!("Which item would you like to delete?");
 	let id = io::stdin().read_line().ok().expect("Failed to read line");
 	conn.execute("UPDATE todo SET complete = 'true' WHERE id = $1",
@@ -45,9 +45,41 @@ fn delete(conn: SqliteConnection) {
 fn display(todos: Vec<Todo>) {
 	let mut index = 0;
 	for todo in todos.iter() {
-		println!("{}. {}", todo.id, todo.title);
+		println!("{}. {}", index, todo.title);
 		index += 1;
 		
+	}
+}
+
+fn detail(conn: &SqliteConnection, todos: Vec<Todo>) {
+	println!("Detail of which item?");
+	let id = io::stdin().read_line().ok().expect("Failed to read line");
+	let id_num: Option<isize> = id.parse();
+	match id_num {
+		Some(n) => println!("{}", todos[n]),
+		Err(_) => {
+			println!("Invalid entry")
+		}
+	}
+}
+
+fn menu(conn: &SqliteConnection) {
+	let mut todos = list(conn);
+	display(todos);
+
+	let mut exit = false;
+
+	while !exit {
+		println!("What is your command?");
+		let mut command = io::stdin().read_line().ok().expect("Failed to read line");
+		// command = command.trim();
+		let commands: Vec<&str> = command.split(' ').collect();
+		match commands[0].trim() {
+			"quit" => exit = true,
+			"add" => insert(conn),
+			"detail" => detail(conn, todos),
+			_ => exit = false
+		}
 	}
 }
 
@@ -68,14 +100,14 @@ fn main() {
 				 title          TEXT NOT NULL,
 				 description    TEXT NOT NULL,
 				 complete       TEXT NOT NULL)", &[]).unwrap();
-	let args = os::args();
-	match args.len() {
-		1 => println!("Please provide an argument."),
-		_ => match args[1].as_slice() {
-			"add"  => insert(conn),
-			"list" => list(conn),
-			"delete" => delete(conn),
-			_      => println!("Invalid arguments")
-		}
-	}
+	menu(&conn);
+	// match args.len() {
+	// 	1 => println!("Please provide an argument."),
+	// 	_ => match args[1].as_slice() {
+	// 		"add"  => insert(conn),
+	// 		"list" => list(conn),
+	// 		"delete" => delete(conn),
+	// 		_      => println!("Invalid arguments")
+	// 	}
+	// }
 }
